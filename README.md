@@ -6,3 +6,8 @@ How to play:
 - Be advised: balls have different speeds.
 
 Play it here: https://codeinplace.stanford.edu/cip3/share/yOqxpEEwBVTDnczHiUcs
+
+
+- NEW VERSION IS COMING - 
+
+Last update: 11 June 2023
