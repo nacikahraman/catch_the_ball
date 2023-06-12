@@ -12,7 +12,7 @@ FONT_SIZE = CANVAS_HEIGHT/25
 USER_ERROR_MARGIN = BALL_RADIUS*1.1 #it means paddle covers more area on left and right. higher number makes easier to catch the ball.
 DELAY = 0.05
 
-#a list that stores scores locally
+#a list that stores scores locally, resets when program stops
 scores = [] 
 
 def main():
@@ -63,17 +63,13 @@ def main():
         #GAME OVER case
         #if ball touches the bottom
         if ball_top_y > CANVAS_HEIGHT:
-            #game_over_function doesn't work - manually works
-            #game_over_function(canvas, score, game_mode, game, ball)
-
-            if score > 0:
-                canvas.delete(game_score)
             canvas.clear() #clears the player screen
             game = "OVER"
 
             #shows the game over, score, restart note, high scores texts (like a menu UI)
-            game_over_text = canvas.create_text(10, CANVAS_HEIGHT/2, font_size = int(FONT_SIZE), text='GAME OVER!')
-            game_over_score = canvas.create_text(10, CANVAS_HEIGHT/2 + int(FONT_SIZE) + 5, font_size = int(FONT_SIZE), text='Score: ' + str(score))
+            game_over_text = canvas.create_text(10, 10, font_size = int(FONT_SIZE), text='GAME OVER!')
+            game_over_score = canvas.create_text(10, 10 + int(FONT_SIZE) + 5, font_size = int(FONT_SIZE), text='Score: ' + str(score))
+            game_over_game_mode = canvas.create_text(10, 10 + int(FONT_SIZE) + 25, font_size = int((FONT_SIZE)*2/3), color ="gray", text=game_mode + " MODE")
             game_over_note = canvas.create_text(10, CANVAS_HEIGHT - (FONT_SIZE * 3), font_size = int(FONT_SIZE), text="Click anywhere to restart...")
             high_scores (canvas, score)
             
@@ -114,9 +110,6 @@ def main():
             ball_left_x = random.randint(0, CANVAS_WIDTH - BALL_RADIUS*2)
             ball = canvas.create_oval(ball_left_x, 0, ball_left_x + BALL_RADIUS*2, 0 + BALL_RADIUS*2, "green")
             
-            #score_up_function doesn't work - manually works
-            #score_up_function(canvas, score, paddle, game_mode, paddle_top_x, paddle_top_y, paddle_bottom_y)
-
             if score > 0: #if there is no score, there is no game_score text to delete
                 canvas.delete(game_score)
             score += 1
@@ -128,7 +121,7 @@ def main():
             paddle = canvas.create_rectangle(paddle_top_x, paddle_top_y, paddle_top_x + paddle_width, paddle_bottom_y, str(paddle_color))
             
             #shows the score dynamically on top left
-            game_score = canvas.create_text(10, 10, text='Score: ' + str(score))
+            game_score = canvas.create_text(10, 10, font_size = int(FONT_SIZE), text='Score: ' + str(score))
 
 #score_up_function out of use
 def score_up_function(canvas, score, paddle, game_mode, paddle_top_x, paddle_top_y, paddle_bottom_y):
@@ -151,7 +144,7 @@ def game_over_function(canvas, score, game_mode, game, ball):
     game = "OVER"
 
     #shows the game over, score, restart note, high scores texts (like a menu UI)
-    game_over_text = canvas.create_text(10, CANVAS_HEIGHT/2, font_size = int(FONT_SIZE), text='GAME OVER!')
+    game_over_text = canvas.create_text(10, CANVAS_HEIGHT/2, anchor = "center", font_size = int(FONT_SIZE), text='GAME OVER!')
     game_over_score = canvas.create_text(10, CANVAS_HEIGHT/2 + int(FONT_SIZE) + 5, font_size = int(FONT_SIZE), text='Score: ' + str(score))
     game_over_note = canvas.create_text(10, CANVAS_HEIGHT - (FONT_SIZE * 3), font_size = int(FONT_SIZE), text="Click anywhere to restart...")
     high_scores (canvas, score)
@@ -195,6 +188,7 @@ def create_origin_paddle (canvas, score, game_mode):
         paddle_bottom_y = PADDLE_BOTTOM_Y1
         paddle = canvas.create_rectangle(paddle_top_x, paddle_top_y, paddle_bottom_x, paddle_bottom_y, "grey")
 
+#game mode selection screen
 def game_mode_function(canvas):
     easy_text = canvas.create_text(200, CANVAS_HEIGHT/2, font_size = int(FONT_SIZE)*2, text = 'EASY <<< ', anchor = "center", color = "forestgreen")
     info_text = canvas.create_text(CANVAS_WIDTH/2, CANVAS_HEIGHT*3/4, font_size = int(FONT_SIZE), text = 'Click with your mouse to choose your game mode', anchor = "center", color = "black")
@@ -227,7 +221,6 @@ def game_mode_function(canvas):
             if len(clicks) > 0:
                 return "EASY"
 
-
         #HARD mode selection
         elif canvas.get_mouse_x() > CANVAS_WIDTH*1/2 and CANVAS_HEIGHT/2 - 100 < canvas.get_mouse_y() < CANVAS_HEIGHT/2 + 100:
             canvas.delete(hard_text)
@@ -237,20 +230,19 @@ def game_mode_function(canvas):
             if len(clicks) > 0:
                 return "HARD"
 
+        #while mouse hover around
         else:
             canvas.delete(hard_text)
             canvas.delete(easy_text)
             easy_text = canvas.create_text(200, CANVAS_HEIGHT/2, font_size = int(FONT_SIZE)*2, text = 'EASY <<< ', anchor = "center", color = "forestgreen")
             hard_text = canvas.create_text(CANVAS_WIDTH-200, CANVAS_HEIGHT/2, font_size = int(FONT_SIZE)*2, text = '>>> HARD', anchor = "center", color = "salmon")
-
         
 def random_color():
     colors = ['blue', 'purple', 'salmon', 'lightblue', 'cyan', 'forestgreen', 'gray', 'midnightblue', 'silver']
     return random.choice(colors) #returns a random color
 
-
+#changes paddle color, depends on score and game mode
 def paddle_color_function(score):        
-#changes the color of paddle, depends on the score
     if score < 16:
         return "gray"
         
@@ -263,9 +255,8 @@ def paddle_color_function(score):
     elif score > 94:
         return "silver"
 
+#changes paddle width, depends on score and game mode
 def paddle_width_function(score, game_mode):
-    #changes paddle width
-    
     if game_mode == "EASY":
         if score < 16:
             return BALL_RADIUS*8 #starting width for easy mode
@@ -296,7 +287,7 @@ def paddle_width_function(score, game_mode):
     else:
         return BALL_RADIUS*2
 
-
+#changes speed, depends on score and game mode
 def speed_function(score, game_mode):
     #random speed adjustments to make the game harder
     #actual speed is "DELAY - speed" (since DELAY is 0.05, recommended speed is between 0.01 to 0.049)
@@ -335,14 +326,18 @@ def speed_function(score, game_mode):
         return speed
 
 
-    
+#SHOWS TOP 5 SCORES
 def high_scores(canvas, score):
-    #SHOWS TOP 5 SCORES
     #gets the last score
     #check if there is more than 5 scores (including "0" scores)
     #if there is more than 5 scores, shows only top 5
     #sorts max 5 score values
     #create text blocks on the canvas
+    
+    if len(scores) > 0:
+        if score > 0 and score > scores [0]:
+            new_high_score_text = canvas.create_text(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, anchor = "center", font_size = int(FONT_SIZE)*3, text="NEW HIGH SCORE!!!", color = random_color())
+
     
     scores.append(score)
     size_of_score = len(scores)
@@ -356,7 +351,8 @@ def high_scores(canvas, score):
         for i in range (size_of_score):
             high_score = canvas.create_text(CANVAS_WIDTH - (FONT_SIZE * 7), 10 + (i+1)*(int(FONT_SIZE) + 5), text= str(i+1) + '............ ' + str(scores[i]))
 
-    #it would be nice to show game mode for every score
+
+    #it would be nice to show --game mode-- for every score
     
 
 if __name__ == '__main__':
